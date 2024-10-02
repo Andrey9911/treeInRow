@@ -1,30 +1,52 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import profile from './components/profile.vue';
+import game from './components/game.vue';
+import history from './components/history.vue';
+import {RouterLink, RouterView, useRoute, useRouter} from 'vue-router';
+
+const route = useRoute()
+function pushWithQuery(query) {
+  router.push({
+    name: 'search',
+    query: {
+      ...route.query,
+      ...query,
+    },
+  })
+}
+
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+    <header>
+        <div class="header__logo">Tree in ROW</div>
+        <div class="header__setting">Setting</div>
+    </header>
+    <main>
+      <Router-View />
+    </main>
+    <footer>
+      <Router-Link to="/history"><div class="but">history</div></Router-Link>
+      <Router-Link to="/"><div class="but">game</div></Router-Link>
+      <Router-Link to="/profile"> <div class="but">profile</div></Router-Link>
+    </footer>
+  <main></main>
+  <footer></footer>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+header{display: flex;align-items: center;}
+main{
+  width: 100%;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+footer{
+  padding: 0 30px 20px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 </style>
