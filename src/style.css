@@ -50,7 +50,22 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-
+.message-block{
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  border-radius: 50px;
+  width: fit-content;
+  padding: 5px 10px;
+}
+.message-block.error{
+    color: rgb(255, 4, 4);
+    background-color:#ff00006f;
+}
+.message-block.succes{
+  color: rgb(0, 190, 6);
+  background-color:#48ff0067;
+}
 .card {
   padding: 2em;
 }

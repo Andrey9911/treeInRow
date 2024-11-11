@@ -11,11 +11,11 @@ import {onMounted} from 'vue';
 
 <style lang="scss" scoped>
 .boost{
-    width: 50px;
-    height: 50px;
+    width: 20px;
+    height: 20px;
     box-sizing: border-box;
-    border-radius: 50%;
+    border-radius: 5px;
     padding: 5px 5px;
-    border: 1px solid #fff;
+    font-size: .7em;
 }
 </style>

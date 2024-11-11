@@ -3,7 +3,16 @@ import profile from './components/profile.vue';
 import game from './components/game.vue';
 import history from './components/history.vue';
 import {RouterLink, RouterView, useRoute, useRouter} from 'vue-router';
+// import gql from 'graphql-tag'
+import { useHistoryStore } from './js/store';
+import { reactive } from 'vue';
 
+
+let historyStore = reactive(useHistoryStore())
+
+console.log(window);
+
+// historyStore.saveUser(user)
 const route = useRoute()
 function pushWithQuery(query) {
   router.push({
@@ -23,11 +32,12 @@ function pushWithQuery(query) {
         <div class="header__setting">Setting</div>
     </header>
     <main>
-      <Router-View />
+      <Router-View :dataMiniApp="historyStore"/>
     </main>
     <footer>
       <Router-Link to="/history"><div class="but">history</div></Router-Link>
       <Router-Link to="/"><div class="but">game</div></Router-Link>
+      <Router-Link to="/draw"><div class="but">draw</div></Router-Link>
       <Router-Link to="/profile"> <div class="but">profile</div></Router-Link>
     </footer>
   <main></main>

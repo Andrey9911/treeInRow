@@ -8,9 +8,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@apollo/client": "^3.11.8",
+    "@orbs-network/ton-access": "^2.3.3",
+    "@tonconnect/ui": "^2.0.9",
+    "express": "^4.21.1",
+    "graphql": "^16.9.0",
+    "graphql-http": "^1.22.1",
+    "pinia": "^2.2.4",
     "scss": "^0.2.4",
     "scss-loader": "^0.0.1",
+    "ton": "^13.9.0",
+    "ton-lite-client": "^3.0.0",
+    "ton-ui-vue": "^0.1.5",
+    "vite-plugin-node-polyfills": "^0.22.0",
     "vue": "^3.4.37",
+    "vue-apollo": "^3.1.2",
+    "vue-drawing-canvas": "^1.0.14",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {

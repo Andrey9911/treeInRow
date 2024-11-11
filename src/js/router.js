@@ -4,6 +4,7 @@ const routes = [
   { path: '/', component:() => import('../components/game.vue')},
   { path: '/history',component:() => import('../components/history.vue')},
   { path: '/profile',component:() => import('../components/profile.vue')},
+  { path: '/draw',component:() => import('../components/game.field.vue')},
 ]
 
 const router = createRouter({
