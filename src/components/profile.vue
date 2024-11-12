@@ -31,15 +31,16 @@ import data_obj from "../js/data-obj";
 import { reactive } from "vue";
 import { useHistoryStore } from "../js/store";
 import {ref} from 'vue';
-// import { LiteClient } from "ton-lite-client";
+// import { main } from "../js/back/ts/client"; 
 
 
+// let tg = window.Telegram;
+// const userTG = tg.initDataUnsafe.user.username;
 let statistic = useHistoryStore().getStat;
 let tasks_array = reactive(data_obj.tasks);
 
 const { sendTransaction, addMessage, sending, error } = useSendTransaction();
 const tonConnectUI = useTonConnectUI().tonConnectUI.value;
-
 
 let status_connect = ref(useTonAddress().value == '' ? false : true);
 let address = ref(useTonAddress().value);
@@ -70,21 +71,32 @@ async function completing(ask)
                 case 'connect':
                     if(address.value != ''){
                         ask.isDone = true
-                        messageShow('succes', 'Поздравляем')
+                        messageShow('succes', 'Поздравляем');
                     }
                     break;
                 case 'call_contract':
-
-                     addMessage("EQD4eA1SdQOivBbTczzElFmfiKu4SXNL4S29TReQwzzr_70k",'100000');
-                     await fetch('https://toncenter.com/api/v2/getTransactions?address=0QDplguoDgJLRiLAGwlyn9EeY69M7reUVRG2t1gFQAdXIREl&limit=10&to_lt=0&archival=true')
+                    console.log(address.value);
+                    
+                    addMessage(address.value,'100000');
+                     await fetch(`https://toncenter.com/api/v2/getTransactions?address=EQD4eA1SdQOivBbTczzElFmfiKu4SXNL4S29TReQwzzr_70k&limit=10&to_lt=0&archival=true`)
                      .then(r => {console.log(r.json());
                      })
+                     addMessage("EQD4eA1SdQOivBbTczzElFmfiKu4SXNL4S29TReQwzzr_70k",'100000');
+                     sendTransaction();
 
-
-                    
-                    console.log();
+                    console.log(window.Telegram);
                     
                     break;
+                case 'share_link':
+                    tg.WebApp.shareApp();
+                    break;
+                case 'drawing_picture':
+                    let array_img = useHistoryStore().getImages;
+                    if(array_img.length >= 5){
+                        ask.isDone = true;
+                        messageShow('succes', 'Поздравляем');
+                        break;
+                    }
             }
         }
         catch (error) {
@@ -104,7 +116,8 @@ function messageShow(type, message)
     let div = document.createElement('div');
     div.textContent = message;
     div.className = 'message-block ' + type;
-    document.querySelector('#app').append(div)
+    document.querySelector('#app').append(div);
+    setTimeout(() => {div.remove()},1000)
 }
 
 

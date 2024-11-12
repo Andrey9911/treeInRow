@@ -23,6 +23,10 @@ import { defineStore } from 'pinia';
           best_game_record: best_record,
           game_len: this.games.length
         }
+      },
+      getImages()
+      {
+        return this.images;
       }
     },
     actions: {

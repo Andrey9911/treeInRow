@@ -11,6 +11,12 @@
                     <tr v-for="g in history" :key="g.id">
                         <td>
                             <img class="image" :src="g.img" alt=""></td>
+                        <td>
+                            <div class="metadata-content">
+                                <div class="mt mt_content">{{ g.metadata.user }}</div>
+                                <div class="mt mt_date">{{ g.metadata.date_create }}</div>
+                            </div>
+                        </td>
                         <!-- <td>{{g.score}}</td> -->
                     </tr>
                 </tbody>
@@ -60,12 +66,15 @@ console.log(history);
 
 <style lang="scss" scoped>
 .history__content{
+    overflow-y: scroll;
     width: 95%;
     height: 500px;
     border-radius: 10px;
     background-color: #c4c5a6;
     padding: 10px;
     box-sizing: border-box;
+    &::-webkit-scrollbar{width: 10px;height: 10px;}
+    &::-webkit-scrollbar-thumb{background-color: #00000030;border-radius: 20px;width: 10px;}
 }
 table{
     border-radius: 10px;
@@ -84,5 +93,18 @@ table{
     border-radius: 10px;
 }
 
+}
+.mt{
+    &.mt_content{
+
+    }
+    &.mt_date{
+        background-color: #00000030;
+        border-radius: 20px;
+        padding: 5px 10px;
+        color: #fff;
+        font-size: .7em;
+        font-weight: 300;
+    }
 }
 </style>

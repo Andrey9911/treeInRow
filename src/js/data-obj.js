@@ -22,6 +22,13 @@ const data_obj = {
             reward: '15 $TROW',
             isDone: false
         },
+        {
+            id:4,
+            title:'Нарисуй 5 картин в draw',
+            type_task: 'drawing_picture',
+            reward: '100 $TROW',
+            isDone: false
+        },
     ],
     users: [
         {

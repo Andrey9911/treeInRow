@@ -51,6 +51,7 @@
 
         </div>
         <div class="option">
+            <a class="share_im but option__but" ref="aDownloadLink">img</a>
             <div class="but option__but save" @click="saveImage">save</div>
             <div class="but option__but share">share</div>
         </div>
@@ -62,9 +63,11 @@ import { onMounted, reactive, ref } from 'vue';
 import VueDrawingCanvas from "vue-drawing-canvas";
 import { useHistoryStore } from '../js/store';
 
+
+let aDownloadLink = ref()
 let VueCanvas = ref()
 onMounted(() => {
-    console.log(VueCanvas.value);
+    console.log(aDownloadLink.value);
     
 })
 
@@ -118,8 +121,11 @@ function saveImage(){
               date_create: new Date().toISOString(),
             }
     }
-    history.addImage(image)
-    console.log(image);
+    // aDownloadLink.value.download = "canvas_image.png";
+    // aDownloadLink.value.href = dataURL;
+    // aDownloadLink.value.click();
+    // history.addImage(image)
+    // console.log(aDownloadLink.value);
     
 }
 
