@@ -15,9 +15,7 @@ import { defineStore } from 'pinia';
     getters: {
       getStat()
       {
-        let best_record = this.games.reduce((prev, curr) => {
-          if(curr < prev) n = curr 
-        }, Number())
+        
         return {
           bal: this.bal,
           best_game_record: best_record,

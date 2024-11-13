@@ -51,9 +51,10 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 .message-block{
+
   position: absolute;
   top: 50px;
-  left: 50px;
+  left: 30%;
   border-radius: 50px;
   width: fit-content;
   padding: 5px 10px;

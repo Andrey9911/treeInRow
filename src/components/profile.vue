@@ -6,18 +6,17 @@
     <div class="profile-tg">
     </div>
     <div class="statistic">
-        <div class="stat__c balance-block">{{ statistic.bal }}$TROW</div>
-        <div class="stat__c best-record">Лучший рекорд: {{ statistic.best_game_record }}</div>
-        <div class="stat__c best-gameLen">Количество игр: {{ statistic.game_len }}</div>
+        <div class="stat__c plashka balance-block"><span style="font-size:1.3em; font-weight:600">{{ statistic.balans }}</span> $TROW</div>
+        <div class="stat__c plashka best-gameLen">Рисунков: {{ statistic.picture_len }}</div>
     </div>
     <!-- <div class="message">{{ address }}</div> -->
     <div class="Tasks">
         <div style="font-size:1.5em; font-weight:600">Задания</div>
         <div class="t Tasks_content">
-            <div :data-index="task.id" class="task" :class="{'active': !task.isDone}"
+            <div :data-index="task.id" class="task plashka" :class="{'active': !task.isDone}"
                 v-for="task in tasks_array" :key="task.id">
                 <div class="plaska_act" v-if="task.isDone"></div>
-                <div class="task__title">{{ task.title }}</div><div class="task__type-task but" :class="{'notActive': task.isDone}" @click="() => completing(task)">{{ task.reward }}</div>
+                <div class="task__title">{{ task.title }}</div><div class="task__type-task but" :class="{'notActive': task.isDone}" @click="() => completing(task)">{{ task.reward }} $TROW</div>
                 
             </div>
         </div>
@@ -28,18 +27,28 @@
 <script setup>
 import { TonConnectButton, useTonAddress,useTonWallet,useSendTransaction, useTonConnectUI } from "ton-ui-vue";
 import data_obj from "../js/data-obj";
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
 import { useHistoryStore } from "../js/store";
 import {ref} from 'vue';
 // import { LiteClient } from "ton-lite-client";
 
+const tg = window.Telegram.WebApp;
+let history = useHistoryStore()
+let statistic = reactive({
+    balans: 0,
+    picture_len: history.games.length,
+    user_id: 'amdrey'
+});
+console.log(window.Telegram);
 
-let statistic = useHistoryStore().getStat;
 let tasks_array = reactive(data_obj.tasks);
 
 const { sendTransaction, addMessage, sending, error } = useSendTransaction();
 const tonConnectUI = useTonConnectUI().tonConnectUI.value;
 
+onMounted(() => {
+    tg.ready();
+})
 
 let status_connect = ref(useTonAddress().value == '' ? false : true);
 let address = ref(useTonAddress().value);
@@ -70,7 +79,8 @@ async function completing(ask)
                 case 'connect':
                     if(address.value != ''){
                         ask.isDone = true
-                        messageShow('succes', 'Поздравляем')
+                        messageShow('succes', 'Поздравляем');
+                        statistic.balans += ask.reward;
                     }
                     break;
                 case 'call_contract':
@@ -105,6 +115,7 @@ function messageShow(type, message)
     div.textContent = message;
     div.className = 'message-block ' + type;
     document.querySelector('#app').append(div)
+    setTimeout(() => {div.remove()},1000);
 }
 
 
@@ -112,11 +123,16 @@ function messageShow(type, message)
 
 <style lang="scss" scoped>
 
+.plashka{
+    background-color:#ffffff37;
+    border-radius: 10px;
+    padding: 10px 7px;
+}
 .but{
     background-color: #0098EA;
     color: #fff;
     font-weight: 500;
-    font-size: .8em;
+    font-size: 1em;
     padding: 5px 10px;
     width: fit-content;
     border-radius: 50px;
@@ -127,29 +143,36 @@ function messageShow(type, message)
         transform: scale(1.05);
     }
 }
-.statistic{display: flex;margin: 0 10px;}
-.task,
-.stat__c{
+.statistic{
+    display: flex;
+    margin: 10px;
+
+    .stat__c{
+        margin: 0 10px;
+    }
+}
+.task{
     position: relative;
     display: flex;
     justify-content: space-between;
-    background-color:#ffffff37;
-    border-radius: 10px;
-    padding: 10px 7px;
     margin: 10px 0;
-}
-.task>.plaska_act{
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    font-weight: bold;
+    font-size: 1em;
+    padding: 15px 20px;
 
-    background-color: #0000003c;
-    border-radius: 10px;
+    .plaska_act{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        background-color: #0000003c;
+        border-radius: 10px;
+    }
 }
-.statistic
-.connected__block{padding:10px; display: flex; justify-content: space-between;}
+
+.connected__block{padding: 10px 20px; display: flex; justify-content: space-between;margin-bottom: 40px;}
 .Tasks{
     padding: 10px 15px;
     border-radius: 7px;

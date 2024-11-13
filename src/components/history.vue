@@ -11,7 +11,11 @@
                     <tr v-for="g in history" :key="g.id">
                         <td>
                             <img class="image" :src="g.img" alt=""></td>
-                        <!-- <td>{{g.score}}</td> -->
+                        <td>
+                            <div class="data">
+                                <div class="data__autor">{{ g.metadata.user }}</div>
+                                <div class="data__date_create">{{g.metadata.date_create}}</div>
+                            </div></td>
                     </tr>
                 </tbody>
                 
@@ -76,6 +80,15 @@ table{
         text-align: center;
         font-size: 1.3em;font-weight: 700;
         color: darkblue;
+        .data{
+            .data__date_create{
+                color: #fff;
+                font-size: .7em;
+                font-weight: 300;
+                background-color: #0000003c;
+                border-radius: 10px;
+            }
+        }
     }
     // tr{background-color: aliceblue;}
 .image{

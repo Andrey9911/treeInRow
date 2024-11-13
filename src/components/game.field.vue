@@ -5,7 +5,7 @@
                 
               </div>
                 <div class="background but">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
                     <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
                     <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
                 </svg>
@@ -18,10 +18,19 @@
                 <!-- <label for="color"> </label> -->
                 <input type="color" @change="(e) => canvas_parametrs.colorpicker = e.target.value" 
                     class="nav__par color-input" id="colorpicker">
-                <input  type="checkbox" class="nav__par Eraser" 
-                    @input="(e) => canvas_parametrs.isEraser = e.target.value"
-                    :checked="canvas_parametrs.isEraser" 
-                    :class={active:isEraser} name="eraser" id="">
+                <div class="eraser">
+                    <input  type="checkbox" class="nav__par Eraser" 
+                        @input="(e) => canvas_parametrs.isEraser = e.target.checked"
+                        :checked="canvas_parametrs.isEraser" 
+                         name="eraser" id="eraser"> 
+                        <label for="eraser">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-eraser-fill" viewBox="0 0 16 16">
+                                <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293z"/>
+                            </svg>
+                        </label>   
+                    
+                </div>
+                
 
                 <!-- <label for="sizepicker"> BRUSH SIZE </label> -->
                 <div class="size_range">
@@ -58,7 +67,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import VueDrawingCanvas from "vue-drawing-canvas";
 import { useHistoryStore } from '../js/store';
 
@@ -82,12 +91,13 @@ let canvas_parametrs = reactive({
     isEraser: false,
     background_image: ''
 })
-
+watch(canvas_parametrs.isEraser, (val) => {
+    console.log(val);
+    
+})
 function resetCanvas()
 {
-    
-    console.log(VueCanvas.value.reset());
-    
+    VueCanvas.value.reset();   
 }
 function changeImageBg(e)
 {
@@ -109,7 +119,7 @@ function changeImageBg(e)
 }
 
 function saveImage(){
-    VueCanvas.value.setContext('2d');
+    // VueCanvas.value.setContext('2d');
     var dataURL = VueCanvas.value.save();
     let image ={
         img: dataURL,
@@ -153,6 +163,8 @@ function saveImage(){
         width: 40px;
         height: 40px;
         margin: 0 5px;
+        padding: 10px;
+        box-sizing: border-box;
     }
     
     }
@@ -164,6 +176,17 @@ function saveImage(){
         }
     }
 }
+.eraser{
+    margin: 20px 0;
+            position: relative;
+            width: 100%;
+            input{
+                position: absolute;
+                width: 100%;
+                opacity: 0;
+                &:checked+label{color: #0862bc;}
+            }
+        }
 nav{
     position: absolute;
     top: 100px;
@@ -196,14 +219,13 @@ nav{
     display: flex;
     justify-content: space-around;
 
-    .option__but{margin: 10px;}
+    .option__but{margin: 10px; font-size: 2em;}
 }
 .but{
     background-color: #7777777c;
     border-radius: 7px;
     width: fit-content;
     padding: 5px 10px;
-    box-sizing: border-box;
 }
 .color-input{
     width: 30px;
