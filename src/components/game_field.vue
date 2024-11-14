@@ -232,6 +232,7 @@ nav{
 
         input[type='range'] {
         -webkit-appearance: none !important;
+        appearance: none;
         background:#ffffff74;
         height:10px;
         border-radius: 10px;
