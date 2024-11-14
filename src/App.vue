@@ -35,22 +35,21 @@ function pushWithQuery(query) {
       <Router-View :dataMiniApp="historyStore"/>
     </main>
     <footer>
-      <Router-Link to="/history"><div class="but">history</div></Router-Link>
-      <Router-Link to="/"><div class="but">game</div></Router-Link>
-      <Router-Link to="/draw"><div class="but">draw</div></Router-Link>
-      <Router-Link to="/profile"> <div class="but">profile</div></Router-Link>
+      <Router-Link class="link" to="/history"><div class="but">history</div></Router-Link>
+      <Router-Link class="link"  to="/"><div class="but">game</div></Router-Link>
+      <Router-Link class="link"  to="/draw"><div class="but">draw</div></Router-Link>
+      <Router-Link  class="link" to="/profile"> <div class="but">profile</div></Router-Link>
     </footer>
-  <main></main>
-  <footer></footer>
 </template>
 
 <style scoped>
 header{display: flex;align-items: center;}
 main{
+  padding: 5px;
   width: 100%;
 }
 footer{
-  padding: 0 30px 20px 30px;
+  padding: 10px 30px 20px 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -58,5 +57,8 @@ footer{
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 10;
+  background-color: #242424;
 }
+
 </style>

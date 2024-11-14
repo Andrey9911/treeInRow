@@ -1,7 +1,9 @@
-var express = require("express")
 var { createHandler } = require("graphql-http/lib/use/express")
 var { buildSchema } = require("graphql")
- 
+var express = require("express");
+var fs = require('fs');
+var sys = require('sys');
+var path = require('path');
 
  
 // The root provides a resolver function for each API endpoint
@@ -35,16 +37,20 @@ var schema = buildSchema(`
   }
 
 `)
-var app = express()
+var app = express();
+app.use(express.static(path.join(__dirname, '../../docs')));
+app.get('/', function(req, res){
+  res.render('../../docs/index.html');
+});
  
-// Create and use the GraphQL handler.
-app.all(
-  "/graphql",
-  createHandler({
-    schema: schema,
-  })
-)
+// // Create and use the GraphQL handler.
+// app.all(
+//   "/graphql",
+//   createHandler({
+//     schema: schema,
+//   })
+// )
  
 // Start the server at port
-app.listen(3000)
+app.listen(8000)
 console.log("Running a GraphQL API server at http://localhost:3000/graphql")

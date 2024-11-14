@@ -1,4 +1,5 @@
 <template>
+    <technical_problems style="position: absolute;top:0;left:0; bottom:0; right:0;"></technical_problems>
     <div class="main__parametrs">
         <div class="but parametr__but boosts-but parametr__boosts">
             <select name="" id="">
@@ -106,6 +107,7 @@ import gql from 'graphql-tag';
 
 import Game from '../../game_alt/jewels-game-master/script/modules/Game';
 import {initBoard, moves, score } from '../js/game-controller';
+import technical_problems from './technical_problems.vue';
 
 
 

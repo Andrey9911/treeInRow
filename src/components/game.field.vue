@@ -56,12 +56,31 @@
                 :width="canvas_parametrs.width"
                 :height="canvas_parametrs.height"
                 :eraser="canvas_parametrs.isEraser"
-                :backgroundImage="canvas_parametrs.background_image"/>
+                :backgroundImage="canvas_parametrs.background_image"
+                @startDraw="draww"/>
 
         </div>
         <div class="option">
             <div class="but option__but save" @click="saveImage">save</div>
-            <div class="but option__but share">share</div>
+            <div class="but option__but share" @click="shareImage">share</div>
+        </div>
+
+        <div class="actions">
+            <div style="font-size:1.5em; font-weight:600">Actions</div>
+            <div class="actions__content">
+                <ul>
+                    <li v-for="a in actions_array" :key="a.id"><div class="action">
+                        <div class="action__coordinate" style="display:flex;">
+                            <span style="font-weight:bold; font-size:1.2em;">from: </span>
+                                {{a.from.x.toFixed(0)}}, {{ a.from.y.toFixed(0)}}
+                        </div>
+                        <div class="action__data">
+                            <div class="data__color" style="width:40px;height:40px; margin:10px; border-radius:7px" :style="{backgroundColor: a.color}"></div>
+                        </div>
+                    </div></li>
+                </ul>  
+            </div>
+            
         </div>
   
 </template>
@@ -71,11 +90,16 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import VueDrawingCanvas from "vue-drawing-canvas";
 import { useHistoryStore } from '../js/store';
 
+let actions_array = ref();
 let VueCanvas = ref()
 onMounted(() => {
     console.log(VueCanvas.value);
+    actions_array.value = VueCanvas.value.getAllStrokes()
+    console.log(actions_array.value);
     
+
 })
+
 
 let img = ref();
 let history = useHistoryStore()
@@ -84,7 +108,7 @@ let colorpicker = ref('');
 let sizepicker = ref(5)
 console.log(colorpicker);
 let canvas_parametrs = reactive({
-    colorpicker: '',
+    colorpicker: '000',
     sizepicker: 5,
     width: 400,
     height:500,
@@ -130,6 +154,14 @@ function saveImage(){
     }
     history.addImage(image)
     console.log(image);
+    
+}
+function shareImage(e){
+    console.log(VueCanvas.value.getAllStrokes());
+    
+}
+function draww(e){
+    console.log(e);
     
 }
 
@@ -236,5 +268,28 @@ nav{
 .canvas{
     border-radius: 10px;
 }
-
+.actions{
+    margin: 5px;
+    padding: 10px;
+    .actions__content{
+        height: 500px;
+        overflow-y: scroll;
+        background-color: #00000033;
+        // padding: 10px;
+    }
+    ul{
+        margin: 0;
+        padding: 0;
+        li{list-style: none;width: 100%;}
+        .action{
+            display: flex;
+            align-items: center;
+            background-color: #00000033;
+            border-radius: 10px;
+            padding: 10px 10px;
+            margin: 10px;
+        }
+        
+    }
+}
 </style>
