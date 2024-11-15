@@ -32,12 +32,13 @@ import { useHistoryStore } from "../js/store";
 import {ref} from 'vue';
 // import { LiteClient } from "ton-lite-client";
 
-const tg = window.Telegram.WebApp;
+
+const tg = window.Telegram.WebApp | undefined;
 let history = useHistoryStore()
 let statistic = reactive({
     balans: 0,
     picture_len: history.games.length,
-    user_id: 'amdrey'
+    user_id: 'andreuy'
 });
 console.log(window.Telegram);
 
@@ -47,7 +48,7 @@ const { sendTransaction, addMessage, sending, error } = useSendTransaction();
 const tonConnectUI = useTonConnectUI().tonConnectUI.value;
 
 onMounted(() => {
-    tg.ready();
+
 })
 
 let status_connect = ref(useTonAddress().value == '' ? false : true);
