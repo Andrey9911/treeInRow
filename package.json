@@ -10,6 +10,8 @@
   "dependencies": {
     "@apollo/client": "^3.11.8",
     "@orbs-network/ton-access": "^2.3.3",
+    "@ton/crypto": "^3.3.0",
+    "@ton/ton": "^15.1.0",
     "@tonconnect/ui": "^2.0.9",
     "express": "^4.21.1",
     "graphql": "^16.9.0",
@@ -17,8 +19,6 @@
     "pinia": "^2.2.4",
     "scss": "^0.2.4",
     "scss-loader": "^0.0.1",
-    "ton": "^13.9.0",
-    "ton-lite-client": "^3.0.0",
     "ton-ui-vue": "^0.1.5",
     "vite-plugin-node-polyfills": "^0.22.0",
     "vue": "^3.4.37",

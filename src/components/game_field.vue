@@ -89,7 +89,11 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import VueDrawingCanvas from "vue-drawing-canvas";
 import { useHistoryStore } from '../js/store';
+import messageShow from '../js/messageShow';
 
+
+let props = defineProps(['user','statistic']);
+let statistic = props.statistic;
 let actions_array = ref();
 let VueCanvas = ref()
 onMounted(() => {
@@ -143,12 +147,14 @@ function changeImageBg(e)
 }
 
 function saveImage(){
+    console.log('statistic ', statistic);
+    
     // VueCanvas.value.setContext('2d');
     var dataURL = VueCanvas.value.save();
     let image ={
         img: dataURL,
             metadata: {
-              user: 'andrey',
+              user: statistic.user_id === undefined ? 'unknow': statistic.user_id,
               date_create: new Date().toISOString(),
             }
     }
@@ -157,6 +163,11 @@ function saveImage(){
     
 }
 function shareImage(e){
+    try {
+        Telegram.WebApp.shareApp();
+    } catch (error) {
+        messageShow('error', 'вы зашли через браузер')
+    }
     console.log(VueCanvas.value.getAllStrokes());
     
 }

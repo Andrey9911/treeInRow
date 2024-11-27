@@ -2,12 +2,14 @@
   <div class="content">
     <h2>technical problems</h2>
     <p><span style="font-weight:bold">sorry</span>, The page is currently unavailable. 
-      internal work is underway. Better draw something in <a href="/draw">draw</a></p>
+      internal work is underway. Better draw something in <RouterLink to="/draw">draw</RouterLink></p>
   </div>
   
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router';
+
 
 </script>
 

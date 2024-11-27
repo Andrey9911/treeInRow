@@ -5,24 +5,67 @@ import history from './components/history.vue';
 import {RouterLink, RouterView, useRoute, useRouter} from 'vue-router';
 // import gql from 'graphql-tag'
 import { useHistoryStore } from './js/store';
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
+import { json } from 'express';
 
 
 let historyStore = reactive(useHistoryStore())
+const tg = window.Telegram.WebApp;
+let user;
+try {
+    tg.disableVerticalSwipes();
+    tg.CloudStorage.getItem('image').then((data, err) => {
+      if(!data) {
+        console.log(`[images true]`,data)
+        historyStore.images.push(JSON.parse(data))
+      }else {
+        setInterval(() => {
+          tg.CloudStorage.setItem('images',JSON.stringify(historyStore.images)).then((data, err) => {
+            if(data && !err) {
+              console.log(`[user images]`,data)
+            console.log(JSON.parse(data))
+            } else {
+            console.log(`[user auth, but not user images]`,err)
+            }
+        },10000)})
+      }
+    })
+    
+
+    user = tg.initDataUnsafe
+    tg.CloudStorage.getItem('user').then((data, err) => {
+    if(data && !err) {
+      console.log(`[user auth]`,data)
+     console.log(JSON.parse(data))
+    } else {
+     console.log(`[user auth, but not reg]`,err)
+     tg.CloudStorage.setItem('user', JSON.stringify(user))
+    }
+})
+} catch (TypeError) {
+    user = 'undefind'
+    console.log('[user undefind]', user);
+    
+}
+let statistic = reactive({
+    balans: 0,
+    picture_len: historyStore.games.length,
+    user_id: user == 'undefined' ? 'undefind' : user.id
+});
+
+
 
 console.log(window);
 
 // historyStore.saveUser(user)
 const route = useRoute()
+const router = useRouter()
 function pushWithQuery(query) {
-  router.push({
-    name: 'search',
-    query: {
-      ...route.query,
-      ...query,
-    },
-  })
+  router.push('/');
 }
+onMounted(() =>{
+  router.push('/profile');
+})
 
 </script>
 
@@ -32,7 +75,9 @@ function pushWithQuery(query) {
         <div class="header__setting">Setting</div>
     </header>
     <main>
-      <Router-View :dataMiniApp="historyStore"/>
+      <Router-View  
+                :user="user" 
+                :statistic="statistic"/>
     </main>
     <footer>
       <Router-Link class="link" to="/history"><div class="but">history</div></Router-Link>

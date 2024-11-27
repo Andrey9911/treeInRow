@@ -31,10 +31,22 @@ import { gql } from '@apollo/client/core';
 import {apolloClient} from '../js/graph.js';
 import {defineProps, onMounted} from 'vue';
 import { useHistoryStore } from '../js/store';
+import messageShow from '../js/messageShow.js';
+
+let history = useHistoryStore().images;
+
+try {
+    
+    window.Telegram.WebApp.sendData({ imageData: JSON.stringify(history) });
+} catch (error) {
+    messageShow('error','вы зашли через браузер')
+}
+  
+
 
 let id = 1
 
-let history = useHistoryStore().images;
+
 console.log(history);
 
 // apolloClient.query({query: gql(`
@@ -70,6 +82,7 @@ console.log(history);
     background-color: #c4c5a6;
     padding: 10px;
     box-sizing: border-box;
+    overflow-y: scroll;
 }
 table{
     border-radius: 10px;

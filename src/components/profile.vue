@@ -1,7 +1,7 @@
 <template>
     <div class="connected__block">
+        <div class="status__wallet" :class="{'active':status_connect}">{{ address != '' ? `${statistic.user_id} connected` : 'no active' }}</div>    
         <TonConnectButton />
-        <div class="status__wallet" :class="{'active':status_connect}">{{ address != '' ? 'you connected' : 'no active' }}</div>    
     </div>
     <div class="profile-tg">
     </div>
@@ -25,22 +25,26 @@
 </template>
 
 <script setup>
-import { TonConnectButton, useTonAddress,useTonWallet,useSendTransaction, useTonConnectUI } from "ton-ui-vue";
+import { TonConnectButton, useTonAddress,useTonWallet,useSendTransaction, useTonConnectUI, toUserFriendlyAddress } from "ton-ui-vue";
 import data_obj from "../js/data-obj";
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, watch } from "vue";
 import { useHistoryStore } from "../js/store";
-import {ref} from 'vue';
+import {ref, defineProps} from 'vue';
+import { sendTrans, createWallet } from "../js/blockchain.server";
+import messageShow from '../js/messageShow.js';
+
 // import { LiteClient } from "ton-lite-client";
 
 
 const tg = window.Telegram.WebApp | undefined;
+let props = defineProps(['user','statistic'])
+
+
+
 let history = useHistoryStore()
-let statistic = reactive({
-    balans: 0,
-    picture_len: history.games.length,
-    user_id: 'andreuy'
-});
+let statistic = props.statistic;
 console.log(window.Telegram);
+
 
 let tasks_array = reactive(data_obj.tasks);
 
@@ -48,7 +52,12 @@ const { sendTransaction, addMessage, sending, error } = useSendTransaction();
 const tonConnectUI = useTonConnectUI().tonConnectUI.value;
 
 onMounted(() => {
+    
+    if(wallet.value != null){
 
+    }
+    console.log(wallet.value);
+    
 })
 
 let status_connect = ref(useTonAddress().value == '' ? false : true);
@@ -67,7 +76,7 @@ const myTransaction = {
 
 async function completing(ask)
 {
-    let array_trans = 
+    // let array_trans = 
     console.log(ask);
     
         if(address.value == ''){
@@ -79,27 +88,40 @@ async function completing(ask)
             switch(ask.type_task){
                 case 'connect':
                     if(address.value != ''){
-                        ask.isDone = true
                         messageShow('succes', 'Поздравляем');
-                        statistic.balans += ask.reward;
+                        taskDone(statistic, ask)
                     }
                     break;
                 case 'call_contract':
-
-                     addMessage("EQD4eA1SdQOivBbTczzElFmfiKu4SXNL4S29TReQwzzr_70k",'100000');
-                     await fetch('https://toncenter.com/api/v2/getTransactions?address=0QDplguoDgJLRiLAGwlyn9EeY69M7reUVRG2t1gFQAdXIREl&limit=10&to_lt=0&archival=true')
-                     .then(r => {console.log(r.json());
-                     })
-
-
-                    
-                    console.log();
-                    
+                    new Promise(res => {
+                        createWallet(wallet,res);
+                    })
+                    .then(res =>{
+                        console.log('[resultat promise] ' + res);
+                        if(res != '')
+                        {
+                            sendTrans(res, 'EQD4eA1SdQOivBbTczzElFmfiKu4SXNL4S29TReQwzzr_70k')
+                            .then(res => {
+                                messageShow('succes', 'Поздравляем');
+                            })
+                            console.log(true);
+                            
+                        }
+                        
+                    })
+                    break;
+                case 'draw_picture':
+                    console.log('[ckeck work case]'+ history.getImagesLen);
+                    if(history.getImagesLen >= 5){
+                        console.log('[ckeck len games]'+ history.getImagesLen >= 5);
+                        messageShow('succes', 'Поздравляем');
+                        taskDone(statistic, ask)
+                    }
                     break;
             }
         }
         catch (error) {
-            console.log('z');
+            console.log(error);
             
         }
     
@@ -109,15 +131,11 @@ async function completing(ask)
     // }
 
 }
-
-function messageShow(type, message)
-{
-    let div = document.createElement('div');
-    div.textContent = message;
-    div.className = 'message-block ' + type;
-    document.querySelector('#app').append(div)
-    setTimeout(() => {div.remove()},1000);
+function taskDone(statistic, ask){
+    statistic.balans += ask.reward;
+    ask.isDone = true
 }
+
 
 
 </script>

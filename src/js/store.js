@@ -13,6 +13,11 @@ import { defineStore } from 'pinia';
         }
       ),
     getters: {
+      getImagesLen(){
+        console.log(this.images.length);
+        
+        return this.images.length
+      },
       getStat()
       {
         
@@ -21,6 +26,10 @@ import { defineStore } from 'pinia';
           best_game_record: best_record,
           game_len: this.games.length
         }
+      },
+      uploadData()
+      {
+        return JSON.stringify(this.images);
       }
     },
     actions: {
