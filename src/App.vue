@@ -6,7 +6,6 @@ import {RouterLink, RouterView, useRoute, useRouter} from 'vue-router';
 // import gql from 'graphql-tag'
 import { useHistoryStore } from './js/store';
 import { onMounted, reactive } from 'vue';
-import { json } from 'express';
 
 
 let historyStore = reactive(useHistoryStore())
