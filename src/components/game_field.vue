@@ -164,6 +164,8 @@ function saveImage(){
 }
 function shareImage(e){
     try {
+        console.log('[telegram. shareLink]: ');
+        
         Telegram.WebApp.shareApp();
     } catch (error) {
         messageShow('error', 'вы зашли через браузер')

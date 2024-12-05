@@ -12,38 +12,45 @@ let historyStore = reactive(useHistoryStore())
 const tg = window.Telegram.WebApp;
 let user;
 try {
-    tg.disableVerticalSwipes();
-    tg.CloudStorage.getItem('image').then((data, err) => {
-      if(!data) {
-        console.log(`[images true]`,data)
-        historyStore.images.push(JSON.parse(data))
-      }else {
-        setInterval(() => {
-          tg.CloudStorage.setItem('images',JSON.stringify(historyStore.images)).then((data, err) => {
-            if(data && !err) {
-              console.log(`[user images]`,data)
-            console.log(JSON.parse(data))
-            } else {
-            console.log(`[user auth, but not user images]`,err)
-            }
-        },10000)})
-      }
-    })
-    
-
     user = tg.initDataUnsafe
-    tg.CloudStorage.getItem('user').then((data, err) => {
-    if(data && !err) {
-      console.log(`[user auth]`,data)
-     console.log(JSON.parse(data))
-    } else {
-     console.log(`[user auth, but not reg]`,err)
-     tg.CloudStorage.setItem('user', JSON.stringify(user))
+    tg.disableVerticalSwipes();
+    try {
+        tg.CloudStorage.getItem('image').then((data, err) => {
+        if(!data) {
+          console.log(`[images true]`,data)
+          historyStore.images.push(JSON.parse(data))
+        }else {
+          setInterval(() => {
+            tg.CloudStorage.setItem('images',JSON.stringify(historyStore.images)).then((data, err) => {
+              if(data && !err) {
+                console.log(`[user images]`,data)
+              console.log(JSON.parse(data))
+              } else {
+              console.log(`[user auth, but not user images]`,err)
+              }
+          },10000)})
+        }
+      })
+      tg.CloudStorage.getItem('user').then((data, err) => {
+          if(data && !err) {
+            console.log(`[user auth]`,data)
+          console.log(JSON.parse(data))
+          } else {
+          console.log(`[user auth, but not reg]`,err)
+          tg.CloudStorage.setItem('user', JSON.stringify(user))
+          }
+      })
+      console.log('[user access added] ',user);
+      
+    } catch (error) {
+      console.log('[storage not save]', error);
+      
     }
-})
 } catch (TypeError) {
     user = 'undefind'
     console.log('[user undefind]', user);
+    console.log(TypeError);
+    
     
 }
 let statistic = reactive({
