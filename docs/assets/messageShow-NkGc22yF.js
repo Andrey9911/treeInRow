@@ -1,0 +1,1 @@
+function s(o,t){let e=document.createElement("div");e.textContent=t,e.className="message-block "+o,document.querySelector("#app").append(e),o!=="sanding"&&setTimeout(()=>{e.remove()},1500)}function n(){document.querySelector(".message-block").remove()}export{n as c,s as m};

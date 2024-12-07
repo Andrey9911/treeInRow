@@ -89,7 +89,7 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import VueDrawingCanvas from "vue-drawing-canvas";
 import { useHistoryStore } from '../js/store';
-import messageShow from '../js/messageShow';
+import {messageShow} from '../js/messageShow';
 
 
 let props = defineProps(['user','statistic']);
