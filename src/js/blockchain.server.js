@@ -1,10 +1,10 @@
-import { TonClient, WalletContractV4, internal, wa } from "@ton/ton";
+import { SendMode, TonClient, WalletContractV4, internal } from "@ton/ton";
 import { mnemonicNew, mnemonicToPrivateKey, mnemonicToWalletKey } from "@ton/crypto";
 
 
 const client = new TonClient({
-	endpoint: 'https://toncenter.com/api/v2/jsonRPC',
-	apiKey: '00444fea3228c14ba22a3ef6b444ebaa80aaac0511db418b2a4ed3373eb94516'
+	endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC',
+	apiKey: '213fff03c52b16fb93899b0bb55830e6e61ee2f307aa9253d80dfc1afb1cdcae'
   });
 let wallet;
 let contract;
@@ -16,9 +16,9 @@ export async function createWallet(a_wallet, res){
 	const workchain = 0; // Usually you need a workchain 0
     wallet = WalletContractV4.create({ workchain, publicKey: keyPair.publicKey });    
 	try {
-		console.log('[wallet address] '+ wallet.address.toString({ bounceable: false }));
+		console.log('[wallet address] '+ wallet.address.toString({ bounceable: false,testOnly:true }));
 		contract = client.open(wallet);
-		res(wallet.address.toString({ bounceable: false }))				
+		res(wallet.address.toString({ bounceable: false, testOnly: true }))				
 	} catch (error) {
 		console.log(error);
 		return
@@ -30,30 +30,38 @@ export async function createWallet(a_wallet, res){
 }
 
 
-
+export async function getTransactions() {
+	return await client.getTransactions(wallet.address.toString({ bounceable: false,testOnly:true }),{limit:1,lt:0})
+}
 
 export async function sendTrans(adress_sender, adress_via)
 {
-	
+	const senqo = await contract.getSeqno();
 	console.log('[wallet senqo]: ');
-	await contract.getSeqno()
-		.then((r) => {console.log(r);
-		})
+	await contract.getSeqno();
 	console.log('[wallet addresses] ' + wallet.address.toString({ bounceable: false }), adress_via);
 	
 	
-	const senqo = await contract.getSeqno();
-	await contract.sendTransfer({
-		seqno: senqo,
-		secretKey: keyPair.secretKey,
-		messages: [internal({
-			value: '0.01',
-			to: adress_via,
-			body: 'Example transfer body',
-		})]
-	})
-	.then(r => {	
-		return true;
-	})
-	return contract;
+	
+	try {
+		await contract.sendTransfer({
+			seqno: senqo,
+			secretKey: keyPair.secretKey,
+			messages: [internal({
+				value: '0.01',
+				to: adress_via,
+				body: 'demo',
+			})]
+		})
+		.then(r => {	
+			return;
+		})
+	} catch (error) {
+		console.log('[trans error]', error);
+		return {
+			type: 'error',
+			message: error.message
+		}
+	}
+	
 }

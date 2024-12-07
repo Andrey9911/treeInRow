@@ -31,7 +31,7 @@ import { gql } from '@apollo/client/core';
 import {apolloClient} from '../js/graph.js';
 import {defineProps, onMounted} from 'vue';
 import { useHistoryStore } from '../js/store';
-import messageShow from '../js/messageShow.js';
+import {messageShow} from '../js/messageShow.js';
 
 let history = useHistoryStore().images;
 

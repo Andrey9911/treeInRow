@@ -15,7 +15,7 @@ try {
     user = tg.initDataUnsafe
     tg.disableVerticalSwipes();
     try {
-        tg.CloudStorage.getItem('image').then((data, err) => {
+        tg.CloudStorage.GetItem('image').then((data, err) => {
         if(!data) {
           console.log(`[images true]`,data)
           historyStore.images.push(JSON.parse(data))
@@ -31,7 +31,7 @@ try {
           },10000)})
         }
       })
-      tg.CloudStorage.getItem('user').then((data, err) => {
+      tg.CloudStorage.GetItem('user').then((data, err) => {
           if(data && !err) {
             console.log(`[user auth]`,data)
           console.log(JSON.parse(data))

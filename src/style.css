@@ -54,18 +54,23 @@ button:focus-visible {
 
   position: absolute;
   top: 50px;
-  left: 30%;
+  right: 10px;
   border-radius: 50px;
   width: fit-content;
   padding: 5px 10px;
 }
 .message-block.error{
-    color: rgb(255, 4, 4);
-    background-color:#ff00006f;
+    color: rgb(146, 0, 0);
+    background-color:#ff6868;
+    border: 1px solid #ff0000;
 }
 .message-block.succes{
-  color: rgb(0, 190, 6);
-  background-color:#48ff0067;
+  color: rgb(0, 156, 5);
+  background-color:#48ff00;
+}
+.message-block.sanding{
+  color: #ada500;
+  background-color:#fff200fd;
 }
 .card {
   padding: 2em;
