@@ -10,20 +10,20 @@
         <div class="stat__c plashka best-gameLen">Рисунков: {{ statistic.picture_len }}</div>
     </div>
     <!-- <div class="message">{{ address }}</div> -->
-    <div class="Tasks">
+    <div class="Tasks content">
         <div style="font-size:1.5em; font-weight:600">Задания</div>
         <div class="t Tasks_content">
             <div :data-index="task.id" class="task plashka" :class="{'active': !task.isDone}"
                 v-for="task in tasks_array" :key="task.id">
                 <div class="plaska_act" v-if="task.isDone"></div>
-                <div class="task__title">{{ task.title }}</div><div class="task__type-task but" :class="{'notActive': task.isDone}" @click="() => completing(task)">{{ task.buttype.def }}</div>
+                <div class="task__title">{{ task.title }}</div><div class="task__type-task but" :class="{'notActive': task.isDone}" @click="() => completing(task)">{{ statusButton }} </div>
                 
             </div>
         </div>
     </div>
     <div class="transactions">
             <div style="font-size:1.5em; font-weight:600">Transactions</div>
-            <div class="tr__content">
+            <div class="tr__content content-list">
                 <ul>
                     <li v-for="a in history_transactions" :key="a[0].address"><div class="tr-row">
                         <div class="tr__coordinate" style="display:flex;">
@@ -42,7 +42,7 @@
 <script setup>
 import { TonConnectButton, useTonAddress,useTonWallet,useSendTransaction, useTonConnectUI, toUserFriendlyAddress } from "ton-ui-vue";
 import data_obj from "../js/data-obj";
-import { onMounted, reactive, watch } from "vue";
+import { computed, onMounted, reactive, watch } from "vue";
 import { useHistoryStore } from "../js/store";
 import {ref, defineProps} from 'vue';
 import { sendTrans, createWallet, getTransactions } from "../js/blockchain.server";
@@ -75,10 +75,10 @@ onMounted(() => {
     console.log(wallet.value);
     
 })
-
 let status_connect = ref(useTonAddress().value == '' ? false : true);
 let address = ref(useTonAddress().value);
-let wallet = useTonWallet()
+let wallet = useTonWallet();
+
 
 const myTransaction = {
       validUntil: Math.floor(Date.now() / 1000) + 60, // 60 sec
@@ -121,15 +121,17 @@ async function completing(ask)
                             .then(res => {
                                 getTransactions()
                                 .then(result => {
-                                    console.log('[last transaction] : ',result);
-
-                                    // taskDone(statistic, ask)
-                                    history_transactions.value.push(result)
+                                    var decoder = new TextDecoder();
+                                    console.log('[last transaction] : ',decoder.decode(new Uint8Array(result.body[0].hash())));
+                                    if(result.code === 200){history_transactions.value.push(result.body)}
+                                    else{messageShow('error', result.body);}
+                                    
                                 })
                                 closeMessageLoad();
                                 console.log(res);
                                 
                                 messageShow('succes', 'Транзакция успешна');
+                                // taskDone(statistic, ask);
                                 
                             })
                             console.log(true);
@@ -167,12 +169,18 @@ function taskDone(statistic, ask){
     ask.isDone = true
 }
 
+let statusButton = computed(() => {
+
+    return 'TROW'
+})
+
 
 
 </script>
 
 <style lang="scss" scoped>
 
+@import url('../style.css');
 .plashka{
     background-color:#ffffff37;
     border-radius: 10px;
@@ -223,11 +231,7 @@ function taskDone(statistic, ask){
 }
 
 .connected__block{padding: 10px 20px; display: flex; justify-content: space-between;margin-bottom: 40px;}
-.Tasks{
-    padding: 10px 15px;
-    border-radius: 7px;
-    background-color: #ffffff37;
-}
+
 
 .status__wallet{
     position: relative;
@@ -257,9 +261,7 @@ function taskDone(statistic, ask){
     margin: 5px;
     padding: 10px;
     .tr__content{
-        height: 200px;
-        overflow-y: scroll;
-        background-color: #00000033;
+       
         // padding: 10px;
     }
     ul{

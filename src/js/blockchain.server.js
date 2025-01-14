@@ -24,14 +24,24 @@ export async function createWallet(a_wallet, res){
 		return
 		
 	}
-
+	
 	const rawFormat = `${workchain}:${wallet.publicKey.toString("hex")}`;
     // return toUserFriendlyAddress(wallet.address.toRawString()); // change here
 }
 
 
 export async function getTransactions() {
-	return await client.getTransactions(wallet.address.toString({ bounceable: false,testOnly:true }),{limit:1,lt:0})
+	try {
+		return {
+			code:200,
+			body: await client.getTransactions(wallet.address.toString({ bounceable: false,testOnly:true }),{limit:1,lt:0})
+		}
+	}catch(error){
+		return {
+			code: error.status,
+			body: error.message
+		}
+	}
 }
 
 export async function sendTrans(adress_sender, adress_via)

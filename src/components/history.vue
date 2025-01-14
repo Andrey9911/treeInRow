@@ -36,8 +36,9 @@ import {messageShow} from '../js/messageShow.js';
 let history = useHistoryStore().images;
 
 try {
-    
     window.Telegram.WebApp.sendData({ imageData: JSON.stringify(history) });
+    console.log('[отправка данных на сервер тг]',{ imageData: JSON.stringify(history) });
+    
 } catch (error) {
     messageShow('error','вы зашли через браузер')
 }

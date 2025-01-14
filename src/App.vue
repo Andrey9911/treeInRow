@@ -5,7 +5,8 @@ import history from './components/history.vue';
 import {RouterLink, RouterView, useRoute, useRouter} from 'vue-router';
 // import gql from 'graphql-tag'
 import { useHistoryStore } from './js/store';
-import { onMounted, reactive } from 'vue';
+import { onBeforeMount, onMounted, reactive } from 'vue';
+import { messageShow } from './js/messageShow';
 
 
 let historyStore = reactive(useHistoryStore())
@@ -15,7 +16,7 @@ try {
     user = tg.initDataUnsafe
     tg.disableVerticalSwipes();
     try {
-        tg.CloudStorage.GetItem('image').then((data, err) => {
+        tg.CloudStorage.getItem('image').then((data, err) => {
         if(!data) {
           console.log(`[images true]`,data)
           historyStore.images.push(JSON.parse(data))
@@ -31,7 +32,7 @@ try {
           },10000)})
         }
       })
-      tg.CloudStorage.GetItem('user').then((data, err) => {
+      tg.CloudStorage.getItem('user').then((data, err) => {
           if(data && !err) {
             console.log(`[user auth]`,data)
           console.log(JSON.parse(data))
@@ -72,7 +73,12 @@ function pushWithQuery(query) {
 onMounted(() =>{
   router.push('/profile');
 })
-
+onBeforeMount(() => {
+  if(!navigator.onLine){
+     messageShow('error', 'not network connect');
+     return;
+  }
+})
 </script>
 
 <template>

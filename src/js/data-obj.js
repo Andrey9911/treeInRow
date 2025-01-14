@@ -6,10 +6,11 @@ const data_obj = {
             title:'Подключите кошелек',
             type_task: 'connect',
             isDone: false,
+            reward: 100,
             buttype: {
-                def: 1 + ' $TROW',
+                def: '',
                 sand: 'sandinng',
-                success: 'done'
+                done: 'done'
             }
         },
         {
@@ -17,10 +18,11 @@ const data_obj = {
             title:'вызовите контракт',
             type_task: 'call_contract',
             isDone: false,
+            reward: 1000,
             buttype: {
-                def: 1000 + ' $TROW',
+                def: '',
                 sand: 'sandinng',
-                success: 'done'
+                done: 'done'
             }
         },
         {
@@ -28,10 +30,11 @@ const data_obj = {
             title:'Поделись игрой с 1 другом',
             type_task: 'share_link',
             isDone: false,
+            reward:15,
             buttype: {
-                def: 15 + ' $TROW',
+                def: '',
                 sand: 'sandinng',
-                success: 'done'
+                done: 'done'
             }
         },
         {
@@ -39,10 +42,11 @@ const data_obj = {
             title:'Нарисуй 5 картинок',
             type_task: 'draw_picture',
             isDone: false,
+            reward:100,
             buttype: {
-                def: 100 + ' $TROW',
+                def: '',
                 sand: 'sandinng',
-                success: 'done'
+                done: 'done'
             }
         },
     ],

@@ -35,7 +35,7 @@
                 <!-- <label for="sizepicker"> BRUSH SIZE </label> -->
                 <div class="size_range">
                     <input type="range" class="nav__par" min="1" max="20" 
-                        @change="(e) => canvas_parametrs.sizepicker = e.target.value" 
+                        @input="(e) => canvas_parametrs.sizepicker = e.target.value" 
                         :value="canvas_parametrs.sizepicker" > 
                     <div class="demo-size nav__par" 
                         :style="
@@ -62,7 +62,16 @@
         </div>
         <div class="option">
             <div class="but option__but save" @click="saveImage">save</div>
-            <div class="but option__but share" @click="shareImage">share</div>
+            <div class="but option__but download" @click="saveImage"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                    </svg>
+            </div>
+            <div class="but option__but share" @click="shareImage">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-share" viewBox="0 0 16 16">
+                <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
+                </svg>
+            </div>
         </div>
 
         <div class="actions">
@@ -77,6 +86,14 @@
                         <div class="action__data">
                             <div class="data__color" style="width:40px;height:40px; margin:10px; border-radius:7px" :style="{backgroundColor: a.color}"></div>
                         </div>
+                        <div class="action__actions">
+                            <div class="method_metka" @click="() => {clickMetka(a)}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768z"/>
+                                </svg>
+                            </div>
+                        </div>
+
                     </div></li>
                 </ul>  
             </div>
@@ -126,6 +143,8 @@ watch(canvas_parametrs.isEraser, (val) => {
 function resetCanvas()
 {
     VueCanvas.value.reset();   
+    document.querySelector('.drawingBoard')
+        .querySelector('.metka').remove()
 }
 function changeImageBg(e)
 {
@@ -148,6 +167,7 @@ function changeImageBg(e)
 
 function saveImage(){
     console.log('statistic ', statistic);
+    messageShow('succes', 'картинка сохранена')
     
     // VueCanvas.value.setContext('2d');
     var dataURL = VueCanvas.value.save();
@@ -178,9 +198,23 @@ function draww(e){
     
 }
 
+function clickMetka(x)
+{
+    console.log(x.from.x.toFixed(2));
+    let metka = document.createElement('div')
+    metka.className = 'circle metka'
+    metka.style.top = ''+x.from.y + 'px'
+    metka.style.left = ''+x.from.x + 'px'
+    console.log(metka.style.backgroundColor);
+    document.querySelector('.drawingBoard')
+    .append(metka)
+    
+}
+
 </script>
 
 <style lang="scss" scoped>
+
 .drawingBoard{
     position: relative;
     .options{
@@ -265,7 +299,10 @@ nav{
     display: flex;
     justify-content: space-around;
 
-    .option__but{margin: 10px; font-size: 2em;}
+    .option__but{
+        margin: 10px; font-size: 2em; padding: 0 15px; box-sizing: border-box;
+        &.save{width: 60%; text-align: center;font-weight: 600;background-color: #00d704;}
+    }
 }
 .but{
     background-color: #7777777c;

@@ -1,441 +1,514 @@
 <template>
-    <technical_problems style="position: absolute;top:0;left:0; bottom:0; right:0;"></technical_problems>
-    <div class="main__parametrs">
-        <div class="but parametr__but boosts-but parametr__boosts">
-            <select name="" id="">
-                <option v-for="item of boosts" :key="item.id"
-                :value="item.symbol">{{ item.symbol }}</option>
-                
-            </select>
-            <div class="boosts__full " v-if="b_panel">
+    <!-- <technical_problems style="position: absolute;top:0;left:0; bottom:0; right:0;"></technical_problems> -->
+    <div class="main__parametrs" ref="game_page">
+        <div class="block-parametrs">
+            <div class="user-data content">
+                <div class="change__but user-data__change-but" @click="ChangeCurrence">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5m-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5"/>
+                    </svg>
+                </div>
+                <div class="input__buy input-parametrs">
+                    Это 
+                    <div class="icon-active"></div>
+                    <div class="block-input">
+                        <input @focus="search_block = true" @input="search" type="search" class="search-active currencies-input_buy" :value="currDataCurrenciesSale">
+                        <input @change="(el) => {data_exchange.active_sale.price = el.target.value}" data-type="sale" class="value-summ " type="text" placeholder="укаите сумму">
+                    </div>
+                   
+                    <div v-if="search_block" class="content content-search search-block" ref="search-block">
+                        <div v-for="i in data_exchange.active_sale.array_data" :key="i.id"
+                            @click="() => {data_exchange.active_sale.id = i.id}"
+                                class="item-active">
+                                    <span class="item-title">{{i.name}}</span>
+                                </div>
+                    </div>
+                </div>
+                <div class="input__sale input-parametrs">
+                    Меняем на это
+                    <div class="icon-active"></div>
+                    <div class="block-input">
+                        <input @focus="search_block2 = true" type="search" class="search-active" :value="currDataCurrenciesBuy">
+                    </div>
+                    
+                    <div v-if="search_block2" class="content content-search search-block" ref="search-block2">
+                        <div v-for="i in data_exchange.active_buy.array_data" :key="i.id"
+                            @click="() => {data_exchange.active_buy.id = i.id}"
+                                class="item-active">
+                                    <span class="item-title">{{i.name}}</span>
+                                </div>
+                    </div>
+                </div>
+                <div style="margin: 10px auto" class="submit button but" @click="submitData">Поиск</div>
+            </div>
+            <div class="best-bundle" :class="{active: active_bundle}">
+                <h2 style="font-size:1.5em; font-weight:600">Лучшая Связка</h2>
+                <div class="best-bundle__block content">
+                    <div class="bundle__action action-type action_buy">Buy</div>
+                    <div class="bundle__changer changer"><a :href="best_rate.url">{{best_rate.exchange}}</a></div>
+                    <div class="bundle__pair pair">{{ best_bundle.buy.rate * data_exchange.active_sale.price}} = {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}}</div>
+                </div>
+                <div class="best-bundle__block content">
+                    <div class="bundle__action action-type action_sale">Sale</div>
+                    <div class="bundle__changer changer"><a :href="best_bundle.sale.url">{{ best_bundle.sale.exchange }}</a></div>
+                    <div class="bundle__pair pair"> {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}} =  {{data_exchange.active_sale.price / best_bundle.sale.rate}} {{data_exchange.active_buy.title}} </div>
+                </div>
+                <div class="bundle__result content">
+                    <div class="bundle__spred">{{ Number((data_exchange.active_sale.price / best_bundle.sale.rate - best_bundle.buy.rate)/(data_exchange.active_sale.price / best_bundle.sale.rate) * 100).toFixed(2)}}</div>
+                   {{ Number(data_exchange.active_sale.price/best_bundle.sale.rate - best_bundle.buy.rate).toFixed(2) <= 0 ? 'Ничего нет': Number(data_exchange.active_sale.price/best_bundle.sale.rate - best_bundle.buy.rate).toFixed(2)}} 
+                </div>
+                <div class="bundle__time-update data-update">{{ new Date().getHours() }}:{{ new Date().getMinutes() }} {{ new Date().getHours() >= 12 ?'PM':'AM' }}</div>
+            </div> 
+            <div class="" style="font-size:1.5em; font-weight:600">Лучший курс</div> 
+            <div class="best-rate rate content" :class="{active: active_bundle}">
+                <div class="rate__changer changer"><a :href="best_rate.url">{{best_rate.exchange}}</a></div>
+                <div class="rate__pair pair">{{ data_exchange.active_sale.price }} {{ data_exchange.active_sale.title }} = {{best_rate.rate * data_exchange.active_sale.price}}</div>
+                <div class="rate__time-update data-update">{{ new Date().getHours() }}:{{ new Date().getMinutes() }} {{ new Date().getHours() >= 12 ?'PM':'AM' }}</div>
+            </div>
+            <div class="content-list changes content">
+                <div v-for="i in pairs" :key="i.changer" ref="changes_block" class="item rate change">
+                    <div class="rate__changer changer">{{ i.changer }}</div>
+                    <div class="rate__pair pair">1 {{ data_exchange.active_sale.title }} = {{ i.rate }} rub</div>
+                    <div class="rate__time-update data-update">12:23 PM</div>
+                </div>
             </div>
         </div>
-        <div class="parametr__score score-text">{{ game.score }}</div>
-        <div class="parametr__time time-text">{{ (game.time/60).toFixed(0) }}:{{ game.time%60 }}</div>
-
-    </div>
-    <div class="field">
-        <div class="field__motion-block motion-content">{{ motion }}</div>
-        <div class="started_tablo active">
-            <div class="main__but but play" @click="(ev) => startGame(ev)">play</div>
-        </div>
-        <div class="table" ref="table" ></div>
-        <!-- <table ref="table" @dragstart="evt => DragEvent(evt)" @dragend="dragEnd()">
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </table> -->
     </div>
 </template>
 
 <script setup>
-import boost from './boost.vue';
-import {getRandomColor, start} from '../js/logic.mjs';
-import {computed, onMounted, reactive, ref} from 'vue';
+import {computed, onBeforeMount, onMounted, reactive, ref, defineModel} from 'vue';
 import { useHistoryStore } from '../js/store'
 import {apolloClient} from '../js/graph.js';
 import gql from 'graphql-tag';
+// import technical_problems from './technical_problems.vue';
+import { messageShow } from '../js/messageShow';
 
-import Game from '../../game_alt/jewels-game-master/script/modules/Game';
-import {initBoard, moves, score } from '../js/game-controller';
-import technical_problems from './technical_problems.vue';
+let active_bundle = false;
+let pairs = ref([]);
+let data_exchange = reactive({
+    active_buy: {
+        array_data:[],
+        id:0,
+        title:'',
+        icon:'',
+        price: 1
+    },
+    active_sale:{
+        array_data:[] ,
+        id:0,
+        title:'',
+        icon:'',
+        price:1
+    }
+})
+let best_rate = reactive({
+    exchange:'',
+    rate:0,
+    date_update:0,
+    url:''
+})
+let best_bundle = reactive({
+    buy: {
+        exchange:'',
+        rate:0,
+        url:''
+    },
+    sale: {
+        exchange:'',
+        rate:0,
+        url:''
+    }
+})
+let changes_block = ref();
+let search_block = ref(true);
+let search_block2 = ref(false)
+let exchanges = ref([]);
+let currencies = ref([]);
+onBeforeMount(async () => {
+    if(navigator.onLine){
+        const response = await fetch('https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/changers/ru');
+        exchanges.value = await response.json();
+        const response2 = await fetch('https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/currencies/ru');
+        currencies.value = await response2.json();
 
+        setTimeout(() => {loadPage(exchanges, currencies)},1000);
+        data_exchange.active_sale.array_data =  currencies._rawValue.currencies.filter(el => !el.cash && el.crypto);
+        data_exchange.active_buy.array_data = currencies._rawValue.currencies.filter(el => !el.cash && !el.crypto);
+    } else messageShow('error','not Network connect');
+    
+});
 
+function loadPage(exchanges, currencies){
+    console.log(exchanges.value, currencies.value);
+}
+onMounted(() => {
+    // console.log(currencies.value);
 
+//Скрыть блок поиска при нажатии в любую пустую зону
+  document.addEventListener('click', function(e){
+    if(!e.target.classList.contains('search-block') && !e.target.classList.contains('search-active')){
+      //element clicked wasn't the div; hide the div
+      search_block.value = false
+      search_block2.value   = false
+    }
+  })
+    
+})
+const BESTCHANGES_TOKEN = '739f245eedd702a5feccc6acc9e9ff5d';
 let game_story = useHistoryStore(); 
 
-let b_panel = ref(true);
-let boosts = [
-    {
-        id: 1,
-        image:'',
-        title:"boomb",
-        symbol: 'B'
-    },
-    {
-        id: 2,
-        image:'',
-        title:"clearCrest",
-        symbol: '+'
+//для добавления курса конкретной валюьы в блок юзер данных
+let rateActive = computed(async () => {
+    console.log();
+    
+    const response = await fetch(`https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/presences/${data_exchange.active_buy-data_exchange.active_sale}`);
+    return await response.json(); 
+})
+// console.log(exchanges, currencies);
+
+
+let currDataCurrenciesSale = computed(() => {
+    try {
+        data_exchange.active_sale.title = data_exchange.active_sale.array_data.find((el) => el.id == data_exchange.active_sale.id).name
+    } catch (error) {
+        return
     }
-]
-
-let table = ref(null);
-let array_row;
-let array_coll;
-
-let motion = ref(moves);
-
-let game = reactive({
-    game_id: 0,
-    score: ref(score),
-    time: 0,
-    date:new Date().toDateString()
+    
+    console.log(data_exchange.active_sale.title);
+    
+    return data_exchange.active_sale.title
 })
+let currDataCurrenciesBuy = computed(() => {
+    try {
+        data_exchange.active_buy.title = data_exchange.active_buy.array_data.find((el) => el.id == data_exchange.active_buy.id).name
+    } catch (error) {return}
+    
+    return data_exchange.active_buy.title})
+//смена местами актива продажи и покупки
+function ChangeCurrence(){
+    let middle = data_exchange.active_sale.array_data;
+    data_exchange.active_sale.array_data = data_exchange.active_buy.array_data;
+    data_exchange.active_buy.array_data = middle;
+    // [data_exchange.active_sale.array_data, data_exchange.active_buy.array_data = data_exchange.active_buy.array_data, data_exchange.active_sale.array_data]
+    console.log(data_exchange.active_buy.array_data[0], data_exchange.active_sale.array_data[0]);
+}
+async function submitData(){
+    // if(navigator.onLine) messageShow('error','not Network connect');
+    resetData();
+    document.querySelectorAll('.search-active').forEach((el) => {
+        if(el.value === ''){
+            messageShow('error', 'какое-то поле пустое');
+            return;
+        }
+    })
 
-onMounted(() => {
-})
+    const response = await fetch(`https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/rates/${data_exchange.active_buy.id}-${data_exchange.active_sale.id}`);
+    pairs.value =  await response.json(); 
+    let rateValue = Object.keys(pairs.value.rates)
+    pairs.value = pairs.value.rates[rateValue];
+    
+    console.log(data_exchange.active_sale)
+    setTimeout(() => {
+        console.log( changes_block.value);
+        // changes_block.value..textContent = exchanges._rawValue.exchanges.find(el => el.id === changes_block.value.key )
 
-function startGame(ev)
-{
-    initBoard(table.value)
-    ev.target.parentElement.classList.remove('active');
-    timer(motion);
-    // let g = new Game(table.value);
-    // g.start();
-    // g.refresh();
+        findBestRate(pairs.value);
+        findBestBundle();
+        active_bundle = true;
+        console.log(active_bundle);
+        
+        
+    },1000)
+}
+//сброс всех временных объектов данных
+function resetData(){
+    active_bundle = false;
+    // Object.
 }
 
+//Найти лучший курс
+function findBestRate(br,callback){
+    
+    if(callback === undefined){
+        console.log("Элемент покупки");
+        
+        let min_s = {exchange:'', rate:1000000000};;
+        let min_m = {exchange:'', rate:1000000000};;
+        let min = {exchange:'', rate:0};
+            let start = 0;
+            let end = br.length-1;
+            while(start < br.length/2){
+                
+                if(br[start].rate < min_s.rate){
+                    min_s.rate = br[start].rate;
+                    min_s.exchange = br[start].changer
+                } 
+                start++;
+                // console.log(`start = ${start}; end = ${end}`);
+                // console.log(`curr = ${br[start].rate} min_s = ${min_s.rate}`);
+                
+            }
+            while(end > br.length/2){
+                if(br[end].rate < min_m.rate){
+                    min_m.rate = br[end].rate;
+                    min_m.exchange = br[end].changer
+                }
+                end--;
+                // console.log(`start = ${start}; end = ${end}`);
+                // console.log(`curr = ${br[end].rate} min_n = ${min_m.rate}`);
+            }
 
 
-// function startGame(ev)
-// {
-//     console.log(ev);
-//     ev.target.parentElement.classList.remove('active')
-//     game.game_id+=1;
-//     // id_game = Telegram.webApp.id+n 
-//    timer(motion);
-//     array_row = Array.from(table.value.children);
-//     array_coll;
-//     console.log(table.value.children);
-//     array_row.forEach((el,i,arr) => { 
-//         array_coll = table.value.children[i].children;
-//         for(let ind = 0; ind < array_coll.length; ind++)
-//         {
-//             let bgc = getRandomColor();
-//             let cll = array_coll[ind];
-//             let box = document.createElement('div');
-//             box.classList.add('box');
-//             box.draggable = true
-//             box.setAttribute('data-coordinate',`${i}${ind}`)
-//             box.setAttribute('data-bg',`${bgc.num}`)
-//             box.style.backgroundColor = bgc.color;
-//             box.style.width = '57px';
-//             box.style.height = '57px';
-//             box.style.borderRadius = '5px';
+
+        min.rate = min_m.rate < min_s.rate ? min_m.rate : min_s.rate; 
+        min.exchange = min_m.rate < min_s.rate ? min_m.exchange : min_s.exchange;
+        best_rate.rate = min.rate;
+        // console.log(min, best_rate.rate);
+        best_rate.exchange = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].name;
+        best_rate.url = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].urls.ru
+        
+    }
+    else{
+        let max = {exchange:'', rate:0};
+        console.log("Элемент продажи");
+
+        let max_s = {exchange:'', rate:0};
+        let max_m = {exchange:'', rate:0};
+        
+        let start = 0;
+        let end = br.length-1;
+        while(start < br.length/2){
+            if(1/br[start].rate > max_s.rate){
+                // console.log(`[цена проджажи - ${ br[start].rate} левой стороны больше max - ${ max_s.rate}] `);
+                max_s.rate = br[start].rate;
+                max_s.exchange = br[start].changer
+                
+            } 
+            start++;
             
-//             cll.appendChild(box);
-//             box.addEventListener('click', (ev) => {
-//                 if(!ev.target.classList.contains('selected'))
-//                   ev.target.classList.add('selected')
-//             if(ev.target.classList.contains('variante'))
-//                 changeCell(document.querySelector('.box.selected'), ev.currentTarget)
-//             else{
-//                 if( i > 0 )
-//                     {
-//                         table.value.querySelector(`.box[data-coordinate="${i-1}${ind}"]`).classList.add('variante')
-//                     }
-                    
-                    
-//                     if(i < table.value.children.length - 1)
-//                     {
-//                         table.value.querySelector(`.box[data-coordinate="${i+1}${ind}"]`).classList.add('variante')
-//                     }
-                    
-                    
-//                     if(ind < table.value.children[i].children.length - 1)
-//                     {
-//                         table.value.querySelector(`.box[data-coordinate="${i}${ind+1}"]`).classList.add('variante')
-//                     }
-                    
-//                     if(ind > 0)
-//                     {
-//                         table.value.querySelector(`.box[data-coordinate="${i}${ind-1}"]`);
-//                     }
-//                 }
-//                 // table.value.querySelector(`.box[data-coordinate="${i-1}${cllx-1}"]`).classList.add('variante')
-//             })
-//         }
-//     })
-// }
-// // function DragEvent()
-// // {
-// //     evt.target.classList.add(`selected`);
-// // }
+        }
+        while(end > br.length/2){
+            if(1/br[end].rate > max_m.rate){
+                // console.log(`[цена проджажи - ${ br[end].rate} правой стороны больше max - ${ max_m.rate}] `);
+                max_m.rate = br[end].rate;
+                max_s.exchange = br[end].changer
+                // console.log(`[цена проджажи правой стороны изменена] составляет - `, 1/max_m.rate);
+            } 
+            end--;
+        }
 
+        max.rate = max_m.rate > max_s.rate ? max_m.rate : max_s.rate;
+        max.exchange = max_m.rate > max_s.rate ? max_m.exchange : max_s.exchange;
+        // console.log(max);
+        callback(br,max);
 
-
-function timer (motion, tick, result) {
-  if (motion.value >= 0) {
-    // game.time++;
-    setTimeout(function () { timer(motion); }, 1000);
-  } else {
-    gameEnd();
-    return;
-  }
+    } 
+   
 }
+async function findBestBundle(){
+    let p;
+    const response = await fetch(`https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/rates/${data_exchange.active_sale.id}-${data_exchange.active_buy.id}`);
+    p =  await response.json(); 
+    let rateValue = Object.keys(p.rates)
+    p = p.rates[rateValue];
+    findBestRate(p,(array,min) => {
+        console.log(`[курс продажи]${1/min.rate}`);
+        console.log(`[курс покупки]${best_rate.rate}`);
+        best_bundle.buy.rate = Number(best_rate.rate)
+        best_bundle.sale.rate = Number(min.rate);
+        console.log(min,active_bundle);
+        console.log('[массив обменников]',exchanges._rawValue.changers.filter(el => el.id === min.exchange));
+        best_bundle.sale.exchange = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].name;
+        best_bundle.sale.url = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].urls.ru
+        console.log(best_bundle.sale);
+        console.log(min.rate);
+        
+    });  
 
-//конец игры
-function gameEnd()
-{   
-    game_story.addGameRecord(game)
-    console.log(game_story.games);
-    Array.from(table.value.querySelectorAll('td')).forEach((el,i) =>{
-            el.innerHTML = '';
-        })
-        document.querySelector('.started_tablo').classList.add('active')
-        saveGame();
-        game.time=0;
-        game.score = 0;
-        game.date = new Date().toISOString()
 }
-async function saveGame()
-{
-    // let str = await apolloClient
-    // .mutate({mutate: gql(
-    //     `mutation($id:string, $user_id: String, $time:INT,$score:INT){
-    //             AddGameRecord(id: $id, user_id: $user_id, time: $time,record: $score){   
-    //                 id
-    //                 time
-    //                 user_id
-    //                 record
-    //             }`,),
-    //             variables: {
-    //                 "id": game.game_id,
-    //                 "user_id": 'andrey',
-    //                 "record": game.score,
-    //                 "time": game.time
-    //             }
-    //         },);
-
-    console.log(game);
+function search(even){
     
-}
-function dragEnd(){}
-
-//смена местами клетки
-function changeCell(select, variant)
-{   
-    [[select.dataset.bg , variant.dataset.bg] = [variant.dataset.bg, select.dataset.bg]];    
-    [[select.style.backgroundColor,variant.style.backgroundColor] = [variant.style.backgroundColor,select.style.backgroundColor]];
-    checked(variant.dataset.coordinate.split(''));
-}
-function checked(row_cell)
-{
-    let row = Number(row_cell[0]);
-    let cell = Number(row_cell[1]);
-    if(checkedVertical(row,cell).isStrike || checkedHorizont(row, cell).isStrike) 
-    {
-        game.score+= 100;
-        motion.value--;
-        console.log('boom');
-        Array.from(table.value.querySelectorAll('tr .box')).forEach((el,i) =>{
-            el.classList.remove('variante')
-            el.classList.remove('selected')
-        })
-         
-        // return strike
-    };
-}
-function checkedVertical(row,cell)
-{
-    console.log(array_row[row+1].querySelector('td .box'));
     
-    let strike = 0;
-    let coll = row;
-    let cells = [];
-    strike++;
-    // while(row <= array_row.length-1 && array_row[coll-1].querySelector('td .box').dataset.bg == table.value.querySelector('td .box.selected').dataset.bg)
-    // {
-    //         cells.push(array_row[coll-1].querySelector('td .box').dataset.coordinate)
-    //         strike++;
-    //         coll++;
-    // }
-    // coll = row
-    // while(row >= 0  && array_row[coll-1].querySelector('td .box').dataset.bg == table.value.querySelector('td .box.selected').dataset.bg)
-    // {
-    //         strike++;
-    //         coll--;
-    // }
-    // console.log();
-    return {
-        isStrike: strike > 0,
-        unnecessary: cells //те, которые надо удалить
-    }
-}
-function checkedHorizont(row, cell){
-    let strike = 0;
-    let coll = cell;
-    let cells = [];
-
-    return {
-        isStrike: strike > 0,
-        unnecessary: cells //те, которые надо удалить
-    }
+    data_exchange.active_sale.array_data.filter((el,i,array) => {
+        return el.name.includes(even.value)
+    })
 }
 </script>
 
 <style lang="scss" scoped>
-
-.boosts__full{
-    position: absolute;
-    width: 100%;
-    height: fit-content;
-    border-radius: 5px;
-    left: 0;
-    right: 0;
-    background-color: #010043;
-}
-.motion-content{
-    color: #ff0000;
-    font-weight: 800;
-    font-size: 2em;
-}
-.field{
+@import url('../style.css');
+.user-data{
+    text-align: center;
+    margin: 30px auto;
     position: relative;
-    width: 95%;
-    height: 557px;
-    background-color: #c4c5a6;
-    border-radius: 10px;
-    padding: 5px;
-    & .started_tablo{
+    .user-data__change-but{
+
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        padding: 50% 0;
-        display: none;
-        background-color: #0000007b;
-        &.active{display: block;}
+        right: 50px;
+        top: 50%;
     }
-    & .field__motion-block{
+}
+.change__but{
+    color: #ffffff;
+    background-color: #00519d45;
+    border-radius: 10px;
+    padding: 7px 12px;
+    
+}
+.input-parametrs{
+    margin: 0 auto;
+    width: 80%;
+    .block-input{
+        display: flex;
+        justify-content: space-between;
+        input.value-summ{
+            min-width: 20%;
+            &:focus{
+                max-width: 50%;
+            }
+            &:focus+.currencies-input_buy{
+                width: 50%;
+            }
+        }
+        input{
+            transition: all ease-out .4s;
+            min-width: 80%;
+            height: 50px;
+            margin: 0 1px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background-color: #acacac49;
+            box-sizing: border-box;
+            border: none;
+        }
+        input:focus{
+            width: 80%;
+        }
+    }
+    
+}
+.input__buy{
+    position: relative;
+    .content-search{
+        font-weight: 600;
+        font-size: 1.2em;
+        z-index: 2;
+        max-height: 400px;
+        width: 90%;
+        overflow: scroll;
         position: absolute;
-        top: 10px;
+        background-color: #7e7e7e;
+        &>div:hover{background-color: #00519d45;}
+    }
+}
+.input__sale{
+    position: relative;
+    .content-search{
+        font-weight: 600;
+        font-size: 1.2em;
+        z-index: 2;
+        max-height: 400px;
+        width: 90%;
+        overflow: scroll;
+        position: absolute;
+        background-color: #7e7e7e;
+        &>div:hover{background-color: #00519d45;}
+    }
+}
+.rate{
+    z-index: 1;
+    margin: 10px auto 40px auto;
+    position: relative;
+    width: 90%;
+    height: 60px;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    .rate__changer{
+        position: absolute;
+        top: -10px;
+        left: 30px;
+    }
+    .rate__time-update{
+        color: #272727;
+        font-weight: 400;
+        position: absolute;
+        bottom: 5px;
         right: 10px;
     }
 }
 
-.table{
-display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    td{
-        // padding: 40px;
-        border-radius: 5px;
+.best-rate{display: none;
+    &.active{display: block;}}
+.best-bundle{
+    display: none;
+    position: relative;
+    &.active{display: block;}
+    &:first-child{border-bottom:thick;}
+    & div{padding:5px 7px ;}
+    .best-bundle__block{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        .bundle__changer{margin: 0 5px;min-width: 70px;}
+        .bundle__pair{
+            width: 50%;
+        }
+        &.content{
+            margin: 0;
+            padding: 1px 1px;
+        }
+        .action-type{
+            width: 30px;
+            height: 50px;
+            &.action_buy{background-color: #238d33;}
+            &.action_sale{background-color: #ff3d3d9c;}
+        } 
+    }
+
+    .bundle__time-update{
+        color: #272727;
+        font-weight: 400;
+        position: absolute;
+        bottom: 2px;
+        right: 10px;
+    }
+    .bundle__result{
+        position: relative;
+        border-top: .8px dashed #888888cd;
+        &.content{
+            margin: 0;
+            padding: 7px 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            border-radius: 0 0 10px 10px;
+        }
+        .bundle__spred{
+            font-weight: 400;
+            font-size: 1em;
+            position: absolute;
+            top: 2px;
+            left: 5px;
+
+            background-color: #272727;
+            border-radius: 7px;
+            padding: 1px 7px;
+        }
     }
 }
-th,
-td{
-    border: solid 1px #000;
-}
-.box{width: 90px; height: 90px;border-radius: 5px;}
-.box.variante{
-    background-color: #000;
-}
-
-.but{
-    border-radius: 5px;
-    padding: 5px;
-    width: fit-content;
-    font-weight: 600;
-    color: #fff;
-    border: 2px solid #fff;
-    font-size: 2em;
-    
-}
-.main__but{
-    margin: 10px auto;
-    padding: 10px 30px;
-    border-radius: 10px;
-    background-color: rgb(19, 236, 19);
-}
-.parametr__but{
-    width: 20px;
-    height: 20px;
-}
-.parametr__boosts{
-    padding: 0;
-    margin: 0;
-    & select{
-        margin: 0;
-        width: 100%;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        -webkit-appearance: none;
-        padding: 3px 5px;
-
+.changes{
+    &::-webkit-scrollbar-track{
+        width: 10px;
+        height: 7px;
+    }
+    &::-webkit-slider-thumb{
+        -webkit-appearance: none !important;
+        background:rgb(255, 255, 255);
+        height:8px;
+        width:10px;
+        border-radius: 50%;
     }
 }
-.main__parametrs{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.score-text{
-    font-size: 3em;
-    font-weight: 700;
-    color: #ffea00;
-    -webkit-text-stroke:1.5px #fff;
-}
-
 </style>
