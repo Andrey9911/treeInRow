@@ -13,6 +13,8 @@
     "@ton/crypto": "^3.3.0",
     "@ton/ton": "^15.1.0",
     "@tonconnect/ui": "^2.0.9",
+    "axios": "^1.7.9",
+    "bybit-api": "^3.10.29",
     "graphql": "^16.9.0",
     "graphql-http": "^1.22.1",
     "pinia": "^2.2.4",

@@ -11,6 +11,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --yellow-bgc:#cfc500fd;
+  --negative-bgc: #ff3d3d9c;
+  --rigth-bgc:#238d33;
+
 }
 
 a {
@@ -112,7 +117,7 @@ button:focus-visible {
   padding: 5px 10px;
 }
 .message-block.error{
-    color: rgb(146, 0, 0);
+    color: #920000;
     background-color:#ff6868;
     border: 1px solid #ff0000;
 }

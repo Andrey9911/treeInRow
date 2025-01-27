@@ -58,7 +58,7 @@ export async function sendTrans(adress_sender, adress_via)
 			seqno: senqo,
 			secretKey: keyPair.secretKey,
 			messages: [internal({
-				value: '0.01',
+				value: '0.0001',
 				to: adress_via,
 				body: 'demo',
 			})]

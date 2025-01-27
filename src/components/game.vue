@@ -42,20 +42,22 @@
                 <div style="margin: 10px auto" class="submit button but" @click="submitData">Поиск</div>
             </div>
             <div class="best-bundle" :class="{active: active_bundle}">
-                <h2 style="font-size:1.5em; font-weight:600">Лучшая Связка</h2>
-                <div class="best-bundle__block content">
-                    <div class="bundle__action action-type action_buy">Buy</div>
-                    <div class="bundle__changer changer"><a :href="best_rate.url">{{best_rate.exchange}}</a></div>
-                    <div class="bundle__pair pair">{{ best_bundle.buy.rate * data_exchange.active_sale.price}} = {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}}</div>
+                <div class="header-block" style="display:flex; justify-content:space-between; flex-wrap:wrap;align-items: center;">
+                    <h2 style="font-size:1.5em; font-weight:600">Лучшая Связка</h2>
+                    <div class="but button" style="" @click="loadDataBB">BB</div>
+                    <div class="header-block__time" style="color:var(--negative-bgc);font-size:.9em; width:100px">Обновленно сейчас</div></div>
+                
+                <div class="best-bundle__list">
+                    <bundle-element v-for="el in best_bundle" :key="el.type" :data="el">
+                        <div v-if="el.type=='buy'" class="bundle__pair pair">{{ Number(best_bundle.find(el => el.type=='buy').rate * data_exchange.active_sale.price).toFixed(2)}} = {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}}</div>
+                        <div v-else-if="el.type=='sale'" class="bundle__pair pair"> {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}} =  {{Number(data_exchange.active_sale.price / best_bundle.find(el => el.type=='sale').rate).toFixed(2)}} {{data_exchange.active_buy.title}} </div>
+                        <div v-else-if="el.type=='change'" class="bundle__pair pair">{{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}} => {{best_bundle.find(el => el.type=='change').rate}}$</div>
+                    </bundle-element>
                 </div>
-                <div class="best-bundle__block content">
-                    <div class="bundle__action action-type action_sale">Sale</div>
-                    <div class="bundle__changer changer"><a :href="best_bundle.sale.url">{{ best_bundle.sale.exchange }}</a></div>
-                    <div class="bundle__pair pair"> {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}} =  {{data_exchange.active_sale.price / best_bundle.sale.rate}} {{data_exchange.active_buy.title}} </div>
-                </div>
+               
                 <div class="bundle__result content">
-                    <div class="bundle__spred">{{ Number((data_exchange.active_sale.price / best_bundle.sale.rate - best_bundle.buy.rate)/(data_exchange.active_sale.price / best_bundle.sale.rate) * 100).toFixed(2)}}</div>
-                   {{ Number(data_exchange.active_sale.price/best_bundle.sale.rate - best_bundle.buy.rate).toFixed(2) <= 0 ? 'Ничего нет': Number(data_exchange.active_sale.price/best_bundle.sale.rate - best_bundle.buy.rate).toFixed(2)}} 
+                    <div class="bundle__spred">{{ Number((data_exchange.active_sale.price / best_bundle.find(el => el.type=='sale').rate - best_bundle.find(el => el.type=='buy').rate)/(data_exchange.active_sale.price / best_bundle.find(el => el.type=='sale').rate) * 100).toFixed(2)}}</div>
+                   {{ Number(best_bundle.find(el => el.type=='buy').rate).toFixed(2) - Number(data_exchange.active_sale.price/best_bundle.find(el => el.type=='sale')).rate <= 0 ? 'Ничего нет': Number(data_exchange.active_sale.price/best_bundle.find(el => el.type=='sale').rate).toFixed(2) - Number(best_bundle.find(el => el.type=='buy').rate).toFixed(2)}}  
                 </div>
                 <div class="bundle__time-update data-update">{{ new Date().getHours() }}:{{ new Date().getMinutes() }} {{ new Date().getHours() >= 12 ?'PM':'AM' }}</div>
             </div> 
@@ -67,7 +69,7 @@
             </div>
             <div class="content-list changes content">
                 <div v-for="i in pairs" :key="i.changer" ref="changes_block" class="item rate change">
-                    <div class="rate__changer changer">{{ i.changer }}</div>
+                    <div class="rate__changer changer">{{ determineChanger }}</div>
                     <div class="rate__pair pair">1 {{ data_exchange.active_sale.title }} = {{ i.rate }} rub</div>
                     <div class="rate__time-update data-update">12:23 PM</div>
                 </div>
@@ -78,16 +80,22 @@
 
 <script setup>
 import {computed, onBeforeMount, onMounted, reactive, ref, defineModel} from 'vue';
+import bundleElement from './bundle_element.vue';
 import { useHistoryStore } from '../js/store'
 import {apolloClient} from '../js/graph.js';
 import gql from 'graphql-tag';
 // import technical_problems from './technical_problems.vue';
 import { messageShow } from '../js/messageShow';
+import {parsingDataBB, getTicketBB} from '../js/parser.mjs';
 
+const BESTCHANGES_TOKEN = '739f245eedd702a5feccc6acc9e9ff5d';
 let active_bundle = false;
 let pairs = ref([]);
+const key_word_bundle = ['buy','sale','change'] //к.слова для индексирования в массиве данных для свзки
+
 let data_exchange = reactive({
     active_buy: {
+        symbol:'',
         array_data:[],
         id:0,
         title:'',
@@ -96,6 +104,7 @@ let data_exchange = reactive({
     },
     active_sale:{
         array_data:[] ,
+        symbol:'',
         id:0,
         title:'',
         icon:'',
@@ -108,41 +117,64 @@ let best_rate = reactive({
     date_update:0,
     url:''
 })
-let best_bundle = reactive({
-    buy: {
+let best_bundle = reactive([
+    {
+        type: 'sale',
         exchange:'',
         rate:0,
         url:''
     },
-    sale: {
+    {
+        type: 'buy',
         exchange:'',
         rate:0,
         url:''
-    }
-})
+    },
+    
+]);
+let bundle_block = ref();
 let changes_block = ref();
 let search_block = ref(true);
 let search_block2 = ref(false)
 let exchanges = ref([]);
 let currencies = ref([]);
-onBeforeMount(async () => {
-    if(navigator.onLine){
-        const response = await fetch('https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/changers/ru');
-        exchanges.value = await response.json();
-        const response2 = await fetch('https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/currencies/ru');
-        currencies.value = await response2.json();
 
-        setTimeout(() => {loadPage(exchanges, currencies)},1000);
-        data_exchange.active_sale.array_data =  currencies._rawValue.currencies.filter(el => !el.cash && el.crypto);
-        data_exchange.active_buy.array_data = currencies._rawValue.currencies.filter(el => !el.cash && !el.crypto);
-    } else messageShow('error','not Network connect');
+
+onBeforeMount(async () => {
+    console.log(localStorage.getItem('exchanges'));
+    if(!(localStorage.getItem('exchanges') || localStorage.getItem('currencies'))){
+        if(navigator.onLine){
+            const response = await fetch('https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/changers/ru');
+            exchanges.value = await response.json();
+            const response2 = await fetch('https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/currencies/ru');
+            currencies.value = await response2.json();
+
+            setTimeout(() => {loadPage(exchanges, currencies)},1000);
+            localStorage.setItem('currencies',JSON.stringify(currencies));
+            localStorage.setItem('exchanges',JSON.stringify(exchanges));
+
+            data_exchange.active_sale.array_data =  currencies._rawValue.currencies.filter(el => !el.cash && el.crypto);
+            data_exchange.active_buy.array_data = currencies._rawValue.currencies.filter(el => !el.cash && !el.crypto);
+
+        } else messageShow('error','not Network connect');
+    }else{
+        let currencies_v = JSON.parse(localStorage.getItem('currencies'));
+        exchanges.value = JSON.parse(localStorage.getItem('exchanges'))._rawValue
+        console.log(JSON.parse(localStorage.getItem('exchanges')));
+        
+        data_exchange.active_sale.array_data = currencies_v._rawValue.currencies.filter(el => !el.cash && el.crypto);
+        data_exchange.active_buy.array_data = currencies_v._rawValue.currencies.filter(el => !el.cash && !el.crypto);
+    }
+    
     
 });
 
-function loadPage(exchanges, currencies){
+async function loadPage(exchanges, currencies){
+    localStorage.setItem('exchanges',JSON.stringify(exchanges));
     console.log(exchanges.value, currencies.value);
 }
 onMounted(() => {
+    console.log(bundle_block.value)
     // console.log(currencies.value);
 
 //Скрыть блок поиска при нажатии в любую пустую зону
@@ -155,7 +187,7 @@ onMounted(() => {
   })
     
 })
-const BESTCHANGES_TOKEN = '739f245eedd702a5feccc6acc9e9ff5d';
+
 let game_story = useHistoryStore(); 
 
 //для добавления курса конкретной валюьы в блок юзер данных
@@ -165,12 +197,29 @@ let rateActive = computed(async () => {
     const response = await fetch(`https://www.bestchange.app/v2/739f245eedd702a5feccc6acc9e9ff5d/presences/${data_exchange.active_buy-data_exchange.active_sale}`);
     return await response.json(); 
 })
-// console.log(exchanges, currencies);
 
-
+//Загрузка данных курсов на ByBit
+async function loadDataBB(){
+    best_bundle.push({
+        type: 'change',
+        exchange: 'bybitConvert'
+    })
+    try {        
+        await getTicketBB(data_exchange.active_buy.symbol)
+                .then(res => {
+                    best_bundle.find(el => el.type == 'change').rate = res['list'][0].lastPrice
+                    console.log(res);
+                })
+    } catch (error) {
+        messageShow('error', error);
+        console.log(error);
+        
+    }
+}
 let currDataCurrenciesSale = computed(() => {
     try {
         data_exchange.active_sale.title = data_exchange.active_sale.array_data.find((el) => el.id == data_exchange.active_sale.id).name
+        data_exchange.active_sale.symbol = data_exchange.active_sale.array_data.find((el) => el.id == data_exchange.active_sale.id).code
     } catch (error) {
         return
     }
@@ -181,7 +230,9 @@ let currDataCurrenciesSale = computed(() => {
 })
 let currDataCurrenciesBuy = computed(() => {
     try {
+
         data_exchange.active_buy.title = data_exchange.active_buy.array_data.find((el) => el.id == data_exchange.active_buy.id).name
+        data_exchange.active_buy.symbol = data_exchange.active_sale.array_data.find((el) => el.id == data_exchange.active_sale.id).code
     } catch (error) {return}
     
     return data_exchange.active_buy.title})
@@ -196,6 +247,7 @@ function ChangeCurrence(){
 async function submitData(){
     // if(navigator.onLine) messageShow('error','not Network connect');
     resetData();
+    best_bundle.slice(best_bundle.indexOf(['type']=='change'));
     document.querySelectorAll('.search-active').forEach((el) => {
         if(el.value === ''){
             messageShow('error', 'какое-то поле пустое');
@@ -264,7 +316,7 @@ function findBestRate(br,callback){
         min.rate = min_m.rate < min_s.rate ? min_m.rate : min_s.rate; 
         min.exchange = min_m.rate < min_s.rate ? min_m.exchange : min_s.exchange;
         best_rate.rate = min.rate;
-        // console.log(min, best_rate.rate);
+        console.log(exchanges._rawValue._rawValue);
         best_rate.exchange = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].name;
         best_rate.url = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].urls.ru
         
@@ -313,15 +365,15 @@ async function findBestBundle(){
     let rateValue = Object.keys(p.rates)
     p = p.rates[rateValue];
     findBestRate(p,(array,min) => {
+        console.log(best_bundle);
         console.log(`[курс продажи]${1/min.rate}`);
         console.log(`[курс покупки]${best_rate.rate}`);
-        best_bundle.buy.rate = Number(best_rate.rate)
-        best_bundle.sale.rate = Number(min.rate);
-        console.log(min,active_bundle);
+        best_bundle.find(el => el.type=='buy').rate = Number(best_rate.rate)
+        best_bundle.find(el => el.type=='sale').rate = Number(min.rate);
+        
         console.log('[массив обменников]',exchanges._rawValue.changers.filter(el => el.id === min.exchange));
-        best_bundle.sale.exchange = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].name;
-        best_bundle.sale.url = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].urls.ru
-        console.log(best_bundle.sale);
+        best_bundle.find(el => el.type=='sale').exchange = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].name;
+        best_bundle.find(el => el.type=='sale').url = exchanges._rawValue.changers.filter(el => el.id === min.exchange)[0].urls.ru
         console.log(min.rate);
         
     });  
@@ -443,29 +495,30 @@ function search(even){
 .best-bundle{
     display: none;
     position: relative;
+    .best-bundle__list{
+        &:first-child{
+            border-radius: 10px 10px 0 0;
+        }
+        &:last-child{
+            border-radius: 0 0 10px 10px ;
+        } 
+        .best-bundle__block{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            .bundle__pair{
+                width: 50%;
+            }
+            &.content{
+                margin: 0;
+                padding: 1px 1px;
+            }
+        }
+    }
+    
     &.active{display: block;}
     &:first-child{border-bottom:thick;}
-    & div{padding:5px 7px ;}
-    .best-bundle__block{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 15px;
-        .bundle__changer{margin: 0 5px;min-width: 70px;}
-        .bundle__pair{
-            width: 50%;
-        }
-        &.content{
-            margin: 0;
-            padding: 1px 1px;
-        }
-        .action-type{
-            width: 30px;
-            height: 50px;
-            &.action_buy{background-color: #238d33;}
-            &.action_sale{background-color: #ff3d3d9c;}
-        } 
-    }
 
     .bundle__time-update{
         color: #272727;

@@ -1,0 +1,11 @@
+game.vue
+    <div class="best-bundle__block content" ref="bundle_block">
+                    <div class="bundle__action action-type action_buy">Buy</div>
+                    <div class="bundle__changer changer"><a :href="best_rate.url">{{best_rate.exchange}}</a></div>
+                    <div class="bundle__pair pair">{{ best_bundle.find(el => el.type=='buy').rate * data_exchange.active_sale.price}} = {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}}</div>
+                </div>
+                <div class="best-bundle__block content">
+                    <div class="bundle__action action-type action_sale">Sale</div>
+                    <div class="bundle__changer changer"><a :href="best_bundle.find(el => el.type=='sale').url">{{ best_bundle.find(el => el.type=='sale').exchange }}</a></div>
+                    <div class="bundle__pair pair"> {{ data_exchange.active_sale.price }} {{data_exchange.active_sale.title}} =  {{data_exchange.active_sale.price / best_bundle.find(el => el.type=='sale').rate}} {{data_exchange.active_buy.title}} </div>
+                </div>
